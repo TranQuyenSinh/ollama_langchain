@@ -5,7 +5,6 @@ from langchain.memory import ConversationBufferMemory
 from langchain_chroma import Chroma
 from models import Models
 
-top_k = 2
 model = Models()
 # prompt = ChatPromptTemplate.from_messages(
 #             [
@@ -31,7 +30,11 @@ class Chat:
         self.memory = ConversationBufferMemory(llm=model.model_ollama, memory_key="chat_history", return_messages=True)
 
     def ask(self, query):
-        retriever = self.vectorstore.as_retriever(search_kwargs={"k": top_k})
+        # retriever = self.vectorstore.as_retriever(search_kwargs={"k": top_k})
+        retriever = self.vectorstore.as_retriever(
+            search_type="similarity_score_threshold",
+            search_kwargs={"k": 2, "score_threshold": 0.5}
+        )
         combine_doc_chain = create_stuff_documents_chain(
             model.model_ollama, 
             prompt
